@@ -1,47 +1,40 @@
-const WebSocket = require('ws');
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
+const WebSocket = require("ws");
+const http = require("http");
+const fs = require("fs");
+const path = require("path");
 
 const PORT = process.env.PORT || 8080;
 
-// Tạo HTTP server phục vụ client.html
 const server = http.createServer((req, res) => {
-  if (req.url === '/') {
-    const filePath = path.join(__dirname, 'client.html');
-    const content = fs.readFileSync(filePath, 'utf-8');
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.end(content);
+  if (req.url === "/") {
+    const html = fs.readFileSync(path.join(__dirname, "client.html"), "utf-8");
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end(html);
   } else {
     res.writeHead(404);
-    res.end('404 Not Found');
+    res.end("404 Not Found");
   }
 });
 
-// Tạo WebSocket server
 const wss = new WebSocket.Server({ server });
 
-wss.on('connection', (ws) => {
-  console.log('Client connected');
+wss.on("connection", (ws) => {
+  ws.on("message", (data) => {
+    try {
+      const { name, message } = JSON.parse(data);
 
-  ws.send('🟢 Bạn đã kết nối tới WebSocket Server');
-
-  ws.on('message', (message) => {
-    console.log('Received:', message);
-
-    // Broadcast cho tất cả client
-    wss.clients.forEach(client => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(`💬 ${message}`);
-      }
-    });
-  });
-
-  ws.on('close', () => {
-    console.log('Client disconnected');
+      // Broadcast cho mọi client
+      wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({ name, message }));
+        }
+      });
+    } catch (err) {
+      console.error("Lỗi dữ liệu:", err.message);
+    }
   });
 });
 
 server.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`✅ Server running at http://localhost:${PORT}`);
 });
