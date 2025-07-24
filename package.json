@@ -1,0 +1,12 @@
+{
+   "name": "websocket-demo",
+  "version": "1.0.0",
+  "description": "Demo WebSocket server with client.html",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.3"
+  }
+}

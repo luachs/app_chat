@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>WebSocket Chat</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    input { width: 300px; padding: 8px; }
+    button { padding: 8px 12px; }
+    #log { margin-top: 10px; background: #f5f5f5; padding: 10px; height: 250px; overflow-y: auto; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h2>💬 WebSocket Chat</h2>
+  <input id="input" placeholder="Nhập tin nhắn..." />
+  <button onclick="send()">Gửi</button>
+  <div id="log"></div>
+
+  <script>
+    const log = document.getElementById('log');
+    const socket = new WebSocket(`wss://${location.host}`);
+
+    socket.onopen = () => log.innerHTML += "🟢 Đã kết nối\n";
+    socket.onmessage = (e) => log.innerHTML += e.data + "\n";
+    socket.onclose = () => log.innerHTML += "🔴 Mất kết nối\n";
+
+    function send() {
+      const input = document.getElementById('input');
+      const msg = input.value.trim();
+      if (msg) {
+        socket.send(msg);
+        input.value = '';
+      }
+    }
+  </script>
+</body>
+</html>
